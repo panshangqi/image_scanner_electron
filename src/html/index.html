@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css" crossorigin="anonymous">
+    <style href="index.css" type="text/css"></style>
+</head>
+<body>
+<button type="button" class="btn btn-primary" id="login_btn">扫描</button>
+<button type="button" class="btn btn-primary" id="static_btn">静态资源路径测试</button>
+<button type="button" class="btn btn-primary" id="http_get_btn">get请求测试</button>
+<button type="button" class="btn btn-primary" id="http_post_btn">post请求测试</button>
+We are using node <script>document.write(process.versions.node)</script>,
+Chrome <script>document.write(process.versions.chrome)</script>,
+and Electron <script>document.write(process.versions.electron)</script>.
+</body>
+<script>
+    window.$ = window.jQuery = require('jquery/dist/jquery.min.js');
+    require('bootstrap/dist/js/bootstrap.min.js');
+</script>
+<script type="text/javascript" src="../js/yq.js"></script>
+<script type="text/javascript" src="../js/index.js"></script>
+</html>

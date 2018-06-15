@@ -1,0 +1,31 @@
+
+
+cnpm start
+cnpm run-script package
+node-gyp configure
+node-gyp build
+
+
+
+# 将打包成可执行的运行包进行asar二进制加密 asar:  resources/app
+npm install -g asar
+在app 同级目录执行
+asar pack ./app app.asar
+之后把app 文件夹删除即可
+
+
+# 安装程序更新服务
+安装npm install  electron-updater 在应用中触发更新检查， electron-updater 自动会通过对应url下的xml文件检查更新
+
+…or create a new repository on the command line
+echo "# image_scanner_electron" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin git@github.com:panshangqi/image_scanner_electron.git
+git push -u origin master
+…or push an existing repository from the command line
+git remote add origin git@github.com:panshangqi/image_scanner_electron.git
+git push -u origin master
+…or import code from another repository
+You can initialize this repository with code from a Subversion, Mercurial, or TFS project.
