@@ -4,10 +4,20 @@
   "description": "",
   "main": "src/main.js",
   "build": {
-    "appId": "hello.world",
-    "productName": "HelloWorld02",
+    "appId": "is_02156143110",
+    "productName": "image_scanner",
+    "directories": {
+      "output": "build"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://www.xxx.com/static/dist/"
+      }
+    ],
     "win": {
-      "icon": "app/img/ImageScanner.ico"
+      "icon": "src/img/ImageScanner.ico",
+      "artifactName": "image_scanner_setup"
     }
   },
   "scripts": {

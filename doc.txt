@@ -14,6 +14,12 @@ asar pack ./app app.asar
 之后把app 文件夹删除即可
 
 
+electron-builder  构建打包工具
+为了防止某些模块无法打包，删除node_modules 只用npm install 重新安装
+
+electron-builder --win --ia32
+
+
 # 安装程序更新服务
 安装npm install  electron-updater 在应用中触发更新检查， electron-updater 自动会通过对应url下的xml文件检查更新
 
