@@ -1,15 +1,19 @@
-const {app, Tray,Menu, BrowserWindow} = require('electron')
+const {app, Tray,Menu, BrowserWindow, ipcMain} = require('electron')
 var path = require("path")
 const html_path = path.join(__dirname, './html/');
 const img_path = path.join(__dirname, './img/');
+const static_path = path.join(__dirname, './');
+
 const logs = require('./lib/logs')
+// 在主进程里
+global.sharedObject = {
+    lib_path: path.join(__dirname, './lib/')
+};
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 const autoUpdater = require('electron-updater').autoUpdater
-const ipcMain = require('electron').ipcMain
-const uploadUrl='http://www.d-shang.com/static/dist/'
+const uploadUrl='http://127.0.0.1:8081/download/'
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
-
 
 let win = null;
 let tray = null;
@@ -17,6 +21,7 @@ let tray = null;
 function createWindow () {
     // 创建浏览器窗口。
     win = new BrowserWindow({width: 1600, height: 800, frame: true})
+    //win.loadURL('https://www.baidu.com');
 
     // 然后加载应用的 index.html。
     win.loadFile(html_path + 'index.html')
@@ -32,13 +37,20 @@ function createWindow () {
         win = null
     })
     updateHandle();
+    eventHandle();
+}
+function eventHandle(){
+    ipcMain.on('asynchronous-message', (event, arg) => {
+        console.log(arg)
+        win.loadFile(html_path + 'index.html')
+    })
 }
 function updateHandle() {
     let message = {
-        error: '检查更新出错',
-        checking: '正在检查更新……',
-        updateAva: '检测到新版本，正在下载……',
-        updateNotAva: '现在使用的就是最新版本，不用更新',
+        error: 'check update error',
+        checking: 'checking update ...',
+        updateAva: 'checked laster version, downloading ...',
+        updateNotAva: 'the version is laster',
     };
     const os = require('os');
 
@@ -67,25 +79,22 @@ function updateHandle() {
     })
     autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
 
-        ipcMain.on('isUpdateNow', (e, arg) => {
-            console.log(arguments);
-        console.log("开始更新");
-        //some code here to handle event
-        autoUpdater.quitAndInstall();
+
+
+            console.log("start update install");
+            //some code here to handle event
+            autoUpdater.quitAndInstall();
+
     });
 
-        mainWindow.webContents.send('isUpdateNow')
-    });
 
-    ipcMain.on("checkForUpdate",()=>{
-        //执行自动更新检查
-        autoUpdater.checkForUpdates();
-})
+    autoUpdater.checkForUpdates();
+
 }
 
 // 通过main进程发送事件给renderer进程，提示更新信息
 function sendUpdateMessage(text) {
-    mainWindow.webContents.send('message', text)
+    console.log(text);
 }
 function createTray(){
     tray = new Tray(img_path + 'ImageScanner.ico')

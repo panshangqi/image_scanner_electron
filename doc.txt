@@ -19,9 +19,23 @@ electron-builder  构建打包工具
 
 electron-builder --win --ia32
 
+文档连接：https://www.electron.build/configuration/nsis
+http://npm.taobao.org/package/electron-packager
 
 # 安装程序更新服务
 安装npm install  electron-updater 在应用中触发更新检查， electron-updater 自动会通过对应url下的xml文件检查更新
+
+exe 获取管理员权限：
+mt.exe
+mt -inputresource:image_scanner.exe -out:manifest.xml
+/*
+<requestedExecutionLevel uiAccess="false" level="asInvoker"/>
+修改为：
+<requestedExecutionLevel uiAccess="false" level="requireAdministrator"/>
+*/
+
+mt -manifest manifest.xml -outputresource:image_scanner.exe
+
 
 …or create a new repository on the command line
 echo "# image_scanner_electron" >> README.md
