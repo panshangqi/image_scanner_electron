@@ -20,6 +20,7 @@ $('#login_btn').click(function () {
 $('#static_btn').click(function () {
 
     console.log(remote.getGlobal('sharedObject').lib_path);
+    console.log(process);
 })
 $('#http_get_btn').click(function () {
 
@@ -46,3 +47,10 @@ $('#http_post_btn').click(function () {
 $('#msg_1').click(function () {
     ipcRenderer.send('asynchronous-message', 'ping')
 })
+$('#check_update_btn').click(function () {
+    ipcRenderer.send('update-message', 'start')
+})
+ipcRenderer.on("update-message-call", (event, text) => {
+    console.log(text);
+    $('#update_progress').append(text + '<br/>');
+});

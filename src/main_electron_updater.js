@@ -1,6 +1,4 @@
 const {app, Tray,Menu, BrowserWindow, ipcMain} = require('electron')
-const log = require('electron-log')
-
 var path = require("path")
 const html_path = path.join(__dirname, './html/');
 const img_path = path.join(__dirname, './img/');
@@ -13,9 +11,9 @@ global.sharedObject = {
 };
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-const uploadUrl='http://www.pansq.info:8081/download/'
-//const uploadUrl='http://127.0.0.1:8081/download/'
-//const uploadUrl='http://10.200.3.16:8081/download/'
+const autoUpdater = require('electron-updater').autoUpdater
+//const uploadUrl='http://www.pansq.info:8081/download/'
+const uploadUrl='http://127.0.0.1:8081/download/'
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
 
 let win = null;
@@ -39,70 +37,51 @@ function createWindow () {
         // 与此同时，你应该删除相应的元素。
         win = null
     })
-
+    updateHandle();
     eventHandle();
-
 }
-// 主进程监听渲染进程传来的信息
 function eventHandle(){
     ipcMain.on('asynchronous-message', (event, arg) => {
         console.log(arg)
         win.loadFile(html_path + 'index.html')
     })
-
-    ipcMain.on('update-message', (e, arg) => {
-        updateHandle();
-    });
 }
 function updateHandle() {
-    
-    const autoUpdater = require('electron-updater').autoUpdater
     let message = {
         error: 'check update error',
         checking: 'checking update ...',
         updateAva: 'checked laster version, downloading ...',
         updateNotAva: 'the version is laster',
     };
-    autoUpdater.autoDownload = false;
+    const os = require('os');
+
     autoUpdater.setFeedURL(uploadUrl);
-    autoUpdater.checkForUpdates();
-
-    // 更新下载进度事件
-    autoUpdater.on('download-progress',  (progressObj) => {
-        //win.webContents.send('downloadProcess', 'is --- download ----');
-        console.log('Download progress......');
-        sendStatusToWindow('-');
-    })
-
     autoUpdater.on('error', function (error) {
         logs.log(message.error)
     });
     autoUpdater.on('checking-for-update', function () {
         logs.log(message.checking)
-        sendStatusToWindow(message.checking);
     });
     autoUpdater.on('update-available', function (info) {
         logs.log(message.updateAva);
-        sendStatusToWindow(message.updateAva);
-        autoUpdater.downloadUpdate();
-
     });
     autoUpdater.on('update-not-available', function (info) {
         logs.log(message.updateNotAva)
     });
 
+    // 更新下载进度事件
+    autoUpdater.on('download-progress', function (progressObj) {
+        logs.log('----------');
+    })
     autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
-        //win.webContents.send('downloadProcess', 'checkUpdate');
+
         logs.log("start update install");
             //some code here to handle event
-            //autoUpdater.quitAndInstall();
+            autoUpdater.quitAndInstall();
     });
 
-}
-function sendStatusToWindow(text) {
-    log.info(text);
-    win.webContents.send('update-message-call', text);
 
+    autoUpdater.checkForUpdates();
 
 }
 
@@ -124,8 +103,6 @@ function createTray(){
 app.on('ready', () => {
     createWindow();
     createTray();
-
-
 })
 
 // 当全部窗口关闭时退出。
@@ -134,6 +111,7 @@ app.on('window-all-closed', () => {
     // 否则绝大部分应用及其菜单栏会保持激活。
     app.quit()
 })
+
 app.on('activate', () => {
     // 在macOS上，当单击dock图标并且没有其他窗口打开时，
     // 通常在应用程序中重新创建一个窗口。
