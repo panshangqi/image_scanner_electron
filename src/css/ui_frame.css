@@ -1,0 +1,31 @@
+#index_html {
+  width: 100%;
+  height: auto;
+}
+#index_html #page_content {
+  width: 100%;
+  height: 600px;
+  border: 0;
+  margin-top: 50px;
+}
+#index_html .page_footer {
+  text-align: center;
+}
+#index_html .update_tip {
+  width: 320px;
+  margin: 0 auto;
+}
+#index_html .update_progress_tip {
+  text-align: right;
+  font-size: 13px;
+  margin-top: 5px;
+}
+#index_html .update_progress_tip .upt_val {
+  color: #007bff;
+}
+.vertical {
+  margin-top: 150px;
+}
+.modal-footer {
+  justify-content: center;
+}

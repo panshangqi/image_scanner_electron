@@ -55,7 +55,10 @@
     "electron-log": "^2.2.15",
     "jquery": "^3.3.1",
     "node-cmd": "^3.0.0",
-    "popper.js": "^1.14.3"
+    "popper.js": "^1.14.3",
+    "electron-reload": "^1.2.2",
+    "electron-updater": "^2.21.10",
+    "request-progress": "^3.0.0"
   },
   "devDependencies": {
     "Squirrel": "0.0.1",
@@ -67,8 +70,10 @@
     "electron-nsis": "0.0.1-alpha",
     "electron-package": "^0.1.0",
     "electron-packager": "^12.1.0",
+    "electron-reload": "^1.2.2",
     "electron-simple-updater": "^1.2.3",
     "electron-updater": "^2.21.10",
+    "handlebars": "^4.0.11",
     "jquery": "^3.3.1",
     "node-cmd": "^3.0.0",
     "popper.js": "^1.14.3"

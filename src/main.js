@@ -1,12 +1,12 @@
 const {app, Tray,Menu, BrowserWindow, ipcMain} = require('electron')
 const log = require('electron-log')
-
+require('electron-reload')(__dirname);
 var path = require("path")
 const html_path = path.join(__dirname, './html/');
 const img_path = path.join(__dirname, './img/');
 const static_path = path.join(__dirname, './');
 
-const logs = require('./lib/logs')
+const autoUpdater = require('electron-updater').autoUpdater
 // 在主进程里
 global.sharedObject = {
     lib_path: path.join(__dirname, './lib/')
@@ -16,6 +16,7 @@ global.sharedObject = {
 const uploadUrl='http://www.pansq.info:8081/download/'
 //const uploadUrl='http://127.0.0.1:8081/download/'
 //const uploadUrl='http://10.200.3.16:8081/download/'
+//const uploadUrl = 'http://10.200.4.232:10010/download/'
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
 
 let win = null;
@@ -23,12 +24,13 @@ let tray = null;
 
 function createWindow () {
     // 创建浏览器窗口。
-    win = new BrowserWindow({width: 1600, height: 800, frame: true})
+    win = new BrowserWindow({width: 1500, height: 800, frame: true})
     //win.loadURL('https://www.baidu.com');
 
     // 然后加载应用的 index.html。
     win.loadFile(html_path + 'index.html')
-    logs.log('success load html: ' + html_path + 'index.html')
+    //win.loadURL('https://electronjs.org/');
+    log.info('success load html: ' + html_path + 'index.html')
     // 打开开发者工具
     win.webContents.openDevTools()
 
@@ -44,66 +46,68 @@ function createWindow () {
 
 }
 // 主进程监听渲染进程传来的信息
+updateHandle();
 function eventHandle(){
     ipcMain.on('asynchronous-message', (event, arg) => {
-        console.log(arg)
+        log.info(arg)
         win.loadFile(html_path + 'index.html')
     })
 
-    ipcMain.on('update-message', (e, arg) => {
-        updateHandle();
+    ipcMain.on('message-check-for-update', (e, arg) => {
+        autoUpdater.checkForUpdates();
+    });
+    ipcMain.on('message-update-start-download', (e, arg) => {
+        autoUpdater.downloadUpdate();
+    });
+    ipcMain.on('message-update-start-install', (e, arg) => {
+        autoUpdater.quitAndInstall();
     });
 }
-function updateHandle() {
-    
-    const autoUpdater = require('electron-updater').autoUpdater
-    let message = {
-        error: 'check update error',
-        checking: 'checking update ...',
-        updateAva: 'checked laster version, downloading ...',
-        updateNotAva: 'the version is laster',
-    };
-    autoUpdater.autoDownload = false;
-    autoUpdater.setFeedURL(uploadUrl);
-    autoUpdater.checkForUpdates();
+function updateHandle() {  //软件更新检测
 
-    // 更新下载进度事件
-    autoUpdater.on('download-progress',  (progressObj) => {
-        //win.webContents.send('downloadProcess', 'is --- download ----');
-        console.log('Download progress......');
-        sendStatusToWindow('-');
-    })
+        let message = {
+            error: 'check update error',
+            checking: 'checking update ...',
+            updateAva: 'checked laster version, downloading ...',
+            updateNotAva: 'the version is laster',
+        };
+        autoUpdater.autoDownload = false;
+        autoUpdater.setFeedURL(uploadUrl);
 
-    autoUpdater.on('error', function (error) {
-        logs.log(message.error)
-    });
-    autoUpdater.on('checking-for-update', function () {
-        logs.log(message.checking)
-        sendStatusToWindow(message.checking);
-    });
-    autoUpdater.on('update-available', function (info) {
-        logs.log(message.updateAva);
-        sendStatusToWindow(message.updateAva);
-        autoUpdater.downloadUpdate();
 
-    });
-    autoUpdater.on('update-not-available', function (info) {
-        logs.log(message.updateNotAva)
-    });
+        autoUpdater.on('error', function (error) {
+            log.info(message.error)
+        });
+        autoUpdater.on('checking-for-update', function () {
+            log.info(message.checking)
 
-    autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
-        //win.webContents.send('downloadProcess', 'checkUpdate');
-        logs.log("start update install");
-            //some code here to handle event
-            //autoUpdater.quitAndInstall();
-    });
+        });
+        autoUpdater.on('update-available', function (info) {
+            log.info(message.updateAva);
+            sendMessageToRender('message-update-available', null);
+        });
+        autoUpdater.on('update-not-available', function (info) {
+            log.info(message.updateNotAva)
+        });
+        // 更新下载进度事件
+        autoUpdater.on('download-progress', function(progressObj) {
+            log.info(progressObj);
+            sendMessageToRender('message-download-progress', progressObj);
+        })
+        autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
+            //win.webContents.send('downloadProcess', 'checkUpdate');
+            log.info("start update install");
+                //some code here to handle event
+            sendMessageToRender('message-download-end');
+        });
 
 }
 function sendStatusToWindow(text) {
     log.info(text);
     win.webContents.send('update-message-call', text);
-
-
+}
+function sendMessageToRender(_event,_data){
+    win.webContents.send(_event, _data);
 }
 
 function createTray(){
@@ -116,7 +120,7 @@ function createTray(){
     ])
     tray.setToolTip('This is my application.')
     tray.setContextMenu(contextMenu)
-    logs.log('success load tray: ' + img_path + 'ImageScanner.ico')
+    log.info('success load tray: ' + img_path + 'ImageScanner.ico')
 }
 // Electron 会在初始化后并准备
 // 创建浏览器窗口时，调用这个函数。
