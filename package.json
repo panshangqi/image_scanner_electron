@@ -39,7 +39,7 @@
     }
   },
   "scripts": {
-    "start": "electron .",
+    "start": "set NODE_ENV=development&& electron .",
     "dist": "electron-builder",
     "dist-win": "electron-builder --win --ia32 --dir",
     "dist-nsis": "electron-builder --win --ia32 --pd='build/win-ia32-unpacked'",
@@ -51,13 +51,22 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.1.1",
+    "child_process": "^1.0.2",
     "colors": "^1.3.0",
+    "date-and-time": "^0.6.2",
+    "ejs": "^2.6.1",
     "electron-log": "^2.2.15",
-    "jquery": "^3.3.1",
-    "node-cmd": "^3.0.0",
-    "popper.js": "^1.14.3",
     "electron-reload": "^1.2.2",
     "electron-updater": "^2.21.10",
+    "express": "^4.16.3",
+    "file-dialog": "0.0.7",
+    "jquery": "^3.3.1",
+    "lowdb": "^1.0.0",
+    "mongodb": "^3.0.10",
+    "node-cmd": "^3.0.0",
+    "nw-dialog": "^1.0.7",
+    "popper.js": "^1.14.3",
+    "regedit": "^3.0.0",
     "request-progress": "^3.0.0"
   },
   "devDependencies": {

@@ -1,6 +1,13 @@
+
 const {app, Tray,Menu, BrowserWindow, ipcMain} = require('electron')
-const log = require('electron-log')
-require('electron-reload')(__dirname);
+const runPfu = require('./pfuRegedit')
+const create_init = require('./create_init')
+const logger = require('electron-log')
+const date = require('date-and-time')
+const fs = require('fs')
+if(process.env.NODE_ENV === 'development') {
+    require('electron-reload')(__dirname);
+}
 var path = require("path")
 const html_path = path.join(__dirname, './html/');
 const img_path = path.join(__dirname, './img/');
@@ -9,7 +16,8 @@ const static_path = path.join(__dirname, './');
 const autoUpdater = require('electron-updater').autoUpdater
 // 在主进程里
 global.sharedObject = {
-    lib_path: path.join(__dirname, './lib/')
+    lib_path: path.join(__dirname, './lib/'),
+    root_dir: __dirname
 };
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -24,13 +32,15 @@ let tray = null;
 
 function createWindow () {
     // 创建浏览器窗口。
+    setupLogger();
+    create_init.init();
     win = new BrowserWindow({width: 1500, height: 800, frame: true})
     //win.loadURL('https://www.baidu.com');
 
     // 然后加载应用的 index.html。
     win.loadFile(html_path + 'index.html')
     //win.loadURL('https://electronjs.org/');
-    log.info('success load html: ' + html_path + 'index.html')
+    logger.info('success load html: ' + html_path + 'index.html')
     // 打开开发者工具
     win.webContents.openDevTools()
 
@@ -49,7 +59,7 @@ function createWindow () {
 updateHandle();
 function eventHandle(){
     ipcMain.on('asynchronous-message', (event, arg) => {
-        log.info(arg)
+        logger.info(arg)
         win.loadFile(html_path + 'index.html')
     })
 
@@ -76,34 +86,34 @@ function updateHandle() {  //软件更新检测
 
 
         autoUpdater.on('error', function (error) {
-            log.info(message.error)
+            logger.info(message.error)
         });
         autoUpdater.on('checking-for-update', function () {
-            log.info(message.checking)
+            logger.info(message.checking)
 
         });
         autoUpdater.on('update-available', function (info) {
-            log.info(message.updateAva);
+            logger.info(message.updateAva);
             sendMessageToRender('message-update-available', null);
         });
         autoUpdater.on('update-not-available', function (info) {
-            log.info(message.updateNotAva)
+            logger.info(message.updateNotAva)
         });
         // 更新下载进度事件
         autoUpdater.on('download-progress', function(progressObj) {
-            log.info(progressObj);
+            logger.info(progressObj);
             sendMessageToRender('message-download-progress', progressObj);
         })
         autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
             //win.webContents.send('downloadProcess', 'checkUpdate');
-            log.info("start update install");
+            logger.info("start update install");
                 //some code here to handle event
             sendMessageToRender('message-download-end');
         });
 
 }
 function sendStatusToWindow(text) {
-    log.info(text);
+    logger.info(text);
     win.webContents.send('update-message-call', text);
 }
 function sendMessageToRender(_event,_data){
@@ -120,7 +130,7 @@ function createTray(){
     ])
     tray.setToolTip('This is my application.')
     tray.setContextMenu(contextMenu)
-    log.info('success load tray: ' + img_path + 'ImageScanner.ico')
+    logger.info('success load tray: ' + img_path + 'ImageScanner.ico')
 }
 // Electron 会在初始化后并准备
 // 创建浏览器窗口时，调用这个函数。
@@ -128,8 +138,7 @@ function createTray(){
 app.on('ready', () => {
     createWindow();
     createTray();
-
-
+    runPfu.init();
 })
 
 // 当全部窗口关闭时退出。
@@ -148,3 +157,79 @@ app.on('activate', () => {
 
 // 在这个文件中，你可以续写应用剩下主进程代码。
 // 也可以拆分成几个文件，然后用 require 导入。
+
+//本地服务
+
+var http = require('http');
+var express = require('express');
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+const adapter = new FileSync('db.json')
+const db = low(adapter)
+db.defaults({image_files:[],user:[]}).write()
+
+process.on('uncaughtException', function (err) {
+    console.log(err);
+});
+
+var http_server  = express();
+http_server.post('/drive_images', function (req, res) {
+    console.log("post query");
+    for(var i=0;i<1;i++){
+        db.get('image_files').push({
+            image_id:'image_'+i,
+            size:13513,
+            filename:'image_'+i+'.jpg',
+            batch:'fadf0adfad'+i+'fasdfadfdsfs'
+        }).write();
+        console.log(i);
+    }
+    res.send({
+        'username':'admin',
+        'passport':'admin'
+    });
+});
+http_server.get("/",function(req,res){
+    console.log("Hello Electron Server")
+    res.send("Hello Electron Server")
+})
+var server = http_server.listen(10082, function () {
+
+    var host = server.address().address
+    var port = server.address().port
+
+    console.log("the local server http://%s:%s", host, port)
+
+})
+
+
+function setupLogger() {
+    var appdata = app.getPath("userData")
+    var log_cache = path.join(appdata, 'logs');
+    if (!fs.existsSync(log_cache)) {
+        fs.mkdirSync(log_cache);
+    }
+    var now = new Date();
+    var logname = date.format(now, 'YYYY_MM_DD');
+    console.log(logname);
+    log_cache = path.join(log_cache, logname + '.log');
+
+    logger.transports.file.level = true;
+    logger.transports.console.level = true;
+    // Same as for console transport
+    logger.transports.file.level = 'info';
+    //logger.transports.file.format = '[{h}:{i}:{s}:{ms}] {text}';
+
+    // Set approximate maximum log size in bytes. When it exceeds,
+    // the archived log will be saved as the log.old.log file
+    logger.transports.file.maxSize = 5 * 1024 * 1024;
+
+    // Write to this file, must be set before first logging
+    logger.transports.file.file = log_cache;
+
+    // fs.createWriteStream options, must be set before first logging
+    logger.transports.file.streamConfig = {flags: 'ax+'};
+
+    // set existed file stream
+    logger.transports.file.stream = fs.createWriteStream((log_cache), {'flags': 'a'});
+}

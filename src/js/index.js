@@ -1,7 +1,12 @@
 
 const {shell, remote, ipcRenderer} = require('electron');
+const {dialog} = require('electron').remote;
 var cmd=require('node-cmd');
 var path = require("path");
+var ini = require("ini");
+var fs = require("fs");
+var fileDialog = require('file-dialog')
+var nwDialog = require('nw-dialog')
 lib_path = path.join(__dirname, './');
 //var hello = require('./hello')
 //----------------------
@@ -51,8 +56,7 @@ $('#http_post_btn').click(function () {
 $('#msg_1').click(function () {
     ipcRenderer.send('asynchronous-message', 'ping')
 })
-
-
+//----------软件更新
 $('#check_update_btn').click(function () {
     ipcRenderer.send('message-check-for-update', 'start')
 })
@@ -65,7 +69,35 @@ $('#to_update_btn').click(function () {
 $('#to_install_btn').click(function () {
     ipcRenderer.send('message-update-start-install')
 })
-//软件更新
+function initDefaultPicInput(){
+    var appdata = require('electron').remote.app.getPath("userData")
+    var scanCfg = path.join(appdata, "scanCfg.ini");
+    console.log(scanCfg);
+    if(fs.existsSync(scanCfg)){
+        var config = ini.parse(fs.readFileSync(scanCfg, 'utf-8'))
+        var default_pic = config.path.picture;
+        console.log(default_pic);
+        $('#show_default_pic').val(default_pic);
+    }
+}
+initDefaultPicInput();
+$('#select_default_pic_btn').click(function () {
+
+    var appdata = require('electron').remote.app.getPath("userData")
+    var scanCfg = path.join(appdata, "scanCfg.ini");
+    var dirPath = dialog.showOpenDialog({
+        properties: ['openDirectory'],
+        defaultPath: "C:\\"
+    })
+    dirPath = dirPath[0];
+    var config = ini.parse(fs.readFileSync(scanCfg, 'utf-8'))
+    config.path = {
+        "picture": dirPath
+    }
+    fs.writeFileSync(scanCfg, ini.stringify(config));
+    $('#show_default_pic').val(dirPath);
+})
+
 ipcRenderer.on('message-update-available', function (event, data) {
     console.log('message-update-available')
     $yes_no_update_dialog.modal({
@@ -91,7 +123,6 @@ ipcRenderer.on('message-download-progress', function (event, data) {
         'width':_width
     })
 })
-
 ipcRenderer.on('message-download-end', function (event) {
     $('#to_install_btn').show();
     $('#update_progress').find('.progress-bar').css({
@@ -99,8 +130,18 @@ ipcRenderer.on('message-download-end', function (event) {
     })
     $('#dl_tip_progress').html('100%');
 })
+//--------软件更新
 
 ipcRenderer.on("update-message-call", (event, text) => {
     console.log(text);
     $('#update_progress').append(text + '<br/>');
+});
+
+const webview = document.getElementById('foo')
+webview.addEventListener('new-window', (e) => {
+    const protocol = require('url').parse(e.url).protocol
+    if (protocol === 'http:' || protocol === 'https:') {
+    //shell.openExternal(e.url)
+    window.open(e.url)
+}
 });
