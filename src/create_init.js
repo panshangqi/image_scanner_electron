@@ -16,7 +16,7 @@ var createInit = {
             this.createCfg();
         }
     },
-    createCfg: function () {
+    createCfg: function () {   //创建配置文件
 
         var appdata = require('electron').app.getPath("userData")
         var scanCfg = path.join(appdata, "scanCfg.ini");
@@ -29,8 +29,8 @@ var createInit = {
             logger.info("scanCfg is no exist, now to create");
             fs.writeFileSync(scanCfg,"");
             var config = ini.parse(fs.readFileSync(scanCfg, 'utf-8'))
-            config.path = {
-                "picture": default_pic
+            config.general = {
+                picture: default_pic
             }
             fs.writeFileSync(scanCfg, ini.stringify(config));
         }

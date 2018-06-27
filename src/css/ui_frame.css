@@ -23,6 +23,54 @@
 #index_html .update_progress_tip .upt_val {
   color: #007bff;
 }
+#index_html .drive_list_content {
+  display: flex;
+  flex-direction: row;
+}
+#index_html .drive_list_box {
+  width: 400px;
+  height: 200px;
+  background-color: #fafafa;
+  border: 1px solid #007bff;
+  overflow: hidden;
+}
+#index_html .drive_list_box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#index_html .drive_list_box ul li {
+  padding-left: 10px;
+  box-sizing: border-box;
+  height: 28px;
+  line-height: 28px;
+  font-size: 13px;
+  font-family: monospace;
+  cursor: pointer;
+}
+#index_html .drive_list_box ul li label {
+  display: block;
+  width: 400px;
+  height: 28px;
+  cursor: pointer;
+}
+#index_html .drive_list_box ul li label input {
+  vertical-align: top;
+  margin-top: 7px;
+  margin-right: 5px;
+}
+#index_html .drive_list_box ul li:hover {
+  background-color: #c3d9ff;
+}
+#index_html .drive_op_btns {
+  width: 120px;
+  height: 200px;
+  margin-left: 30px;
+}
+#index_html .drive_op_btns button {
+  margin-top: 10px;
+  width: 120px;
+}
 .vertical {
   margin-top: 150px;
 }

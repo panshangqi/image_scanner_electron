@@ -1,30 +1,25 @@
 
 const {shell, remote, ipcRenderer} = require('electron');
-const {dialog} = require('electron').remote;
+const {dialog, BrowserWindow} = require('electron').remote;
 var cmd=require('node-cmd');
 var path = require("path");
 var ini = require("ini");
 var fs = require("fs");
+const { exec } = require('child_process');
+var yq_util = require('../yq_util')
 var fileDialog = require('file-dialog')
 var nwDialog = require('nw-dialog')
 lib_path = path.join(__dirname, './');
 //var hello = require('./hello')
 //----------------------
 var $yes_no_update_dialog = $('#yes_no_update_dialog');
+var drive_setting_dialog = $('#drive_setting_dialog');
 
-$('#login_btn').click(function () {
-    var path1 = "D:\\C_GitLab\\pc_scaner_scansnap\\Release";
-    //shell.openItem(path1);
+$('#scan_btn').click(function () {
 
-    //clearEngine(['123','555']);
-    var twainPath = remote.getGlobal('sharedObject').lib_path + "TwainDriver.exe 0";
-    console.log(twainPath);
-    cmd.get(
-        twainPath,
-        function(data){
-            console.log("scan over...")
-        }
-    )
+    exec("TwainDriver.exe 0",{},function(err,data){
+        console.info('TwainDrive 4');
+    });
 })
 $('#static_btn').click(function () {
     console.log(remote.getGlobal('sharedObject').lib_path);
@@ -70,15 +65,9 @@ $('#to_install_btn').click(function () {
     ipcRenderer.send('message-update-start-install')
 })
 function initDefaultPicInput(){
-    var appdata = require('electron').remote.app.getPath("userData")
-    var scanCfg = path.join(appdata, "scanCfg.ini");
-    console.log(scanCfg);
-    if(fs.existsSync(scanCfg)){
-        var config = ini.parse(fs.readFileSync(scanCfg, 'utf-8'))
-        var default_pic = config.path.picture;
-        console.log(default_pic);
-        $('#show_default_pic').val(default_pic);
-    }
+
+    var default_pic = yq_util.get_ini('picture');
+    $('#show_default_pic').val(default_pic);
 }
 initDefaultPicInput();
 $('#select_default_pic_btn').click(function () {
@@ -89,14 +78,59 @@ $('#select_default_pic_btn').click(function () {
         properties: ['openDirectory'],
         defaultPath: "C:\\"
     })
-    dirPath = dirPath[0];
-    var config = ini.parse(fs.readFileSync(scanCfg, 'utf-8'))
-    config.path = {
-        "picture": dirPath
+    if(dirPath){
+        dirPath = dirPath[0];
+        yq_util.set_ini("picture",dirPath)
+        $('#show_default_pic').val(dirPath);
     }
-    fs.writeFileSync(scanCfg, ini.stringify(config));
-    $('#show_default_pic').val(dirPath);
 })
+$('#open_window_dialog_btn').click(function () {
+    const {BrowserWindow} = require('electron').remote
+    let win = new BrowserWindow({width: 800, height: 600})
+    win.loadURL('https://github.com')
+})
+$('#drive_setting_btn').click(function () {
+    drive_setting_dialog.modal('show');
+    exec("TwainDriver.exe 4",{},function(err,data){
+        console.info('TwainDrive 4');
+    });
+})
+$('#set_default_drive_btn').click(function () {
+
+    var drive_name = $('input:radio[name="drive_radio"]:checked').parents('label').find('span').html();
+    if(!drive_name) {
+        alert("请选择驱动");
+        return;
+    }
+    console.log(drive_name);
+    yq_util.set_ini('drive', drive_name);
+    drive_setting_dialog.modal('hide');
+})
+$('#open_drive_setting_btn').click(function () {
+
+    exec("TwainDriver.exe 2",{},function(err,data){
+        console.info('TwainDrive 2');
+    });
+})
+ipcRenderer.on('message-drive-list', function (event, data) {
+    console.log('message-drive-list',data)
+    var selected_drive = yq_util.get_ini('drive');
+    console.log(selected_drive);
+    if($.isArray(data))
+    {
+        data.unshift("ScanSnap IX500");
+
+        var html = '';
+        for(var i=0;i<data.length;i++){
+            if(selected_drive == data[i])
+                html += '<li><label><input type="radio" checked name="drive_radio"><span>' + data[i] + '</span></label></li>';
+            else
+                html += '<li><label><input type="radio" name="drive_radio"><span>' + data[i] + '</span></label></li>';
+        }
+        $('#drive_list_box').html(html);
+    }
+})
+
 
 ipcRenderer.on('message-update-available', function (event, data) {
     console.log('message-update-available')

@@ -22,4 +22,54 @@
             color:#007bff;
         }
     }
+    .drive_list_content{
+        display: flex;
+        flex-direction: row;
+
+    }
+    .drive_list_box{
+        width:400px;
+        height:200px;
+        background-color: #fafafa;
+        border: 1px solid #007bff;
+        overflow: hidden;
+        ul{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            li{
+                padding-left: 10px;
+                box-sizing: border-box;
+                height: 28px;
+                line-height: 28px;
+                font-size: 13px;
+                font-family: monospace;
+                cursor: pointer;
+                label{
+                    display: block;
+                    width:400px;
+                    height: 28px;
+                    cursor: pointer;
+                    input{
+                        vertical-align: top;
+                        margin-top: 7px;
+                        margin-right: 5px;
+                    }
+                }
+
+                &:hover{
+                    background-color: #c3d9ff;
+                }
+            }
+        }
+    }
+    .drive_op_btns{
+        width:120px;
+        height:200px;
+        margin-left: 30px;
+        button{
+            margin-top: 10px;
+            width:120px;
+        }
+    }
 }

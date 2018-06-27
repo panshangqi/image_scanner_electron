@@ -1,5 +1,5 @@
 
-const {app, Tray,Menu, BrowserWindow, ipcMain} = require('electron')
+const {app, Tray,Menu, BrowserWindow, BrowserView, ipcMain} = require('electron')
 const runPfu = require('./pfuRegedit')
 const create_init = require('./create_init')
 const logger = require('electron-log')
@@ -51,7 +51,16 @@ function createWindow () {
         // 与此同时，你应该删除相应的元素。
         win = null
     })
-
+/*
+    let view = new BrowserView({
+        webPreferences: {
+            nodeIntegration: false
+        }
+    })
+    win.setBrowserView(view);
+    view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
+    view.webContents.loadURL('https://electronjs.org')
+    */
     eventHandle();
 
 }
@@ -159,48 +168,77 @@ app.on('activate', () => {
 // 也可以拆分成几个文件，然后用 require 导入。
 
 //本地服务
+function localServer(){
+    const low = require('lowdb')
+    const FileSync = require('lowdb/adapters/FileSync')
 
-var http = require('http');
-var express = require('express');
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
-const adapter = new FileSync('db.json')
-const db = low(adapter)
-db.defaults({image_files:[],user:[]}).write()
-
-process.on('uncaughtException', function (err) {
-    console.log(err);
-});
-
-var http_server  = express();
-http_server.post('/drive_images', function (req, res) {
-    console.log("post query");
-    for(var i=0;i<1;i++){
-        db.get('image_files').push({
-            image_id:'image_'+i,
-            size:13513,
-            filename:'image_'+i+'.jpg',
-            batch:'fadf0adfad'+i+'fasdfadfdsfs'
-        }).write();
-        console.log(i);
+    var appdata = app.getPath("userData")
+    var local_dbs = path.join(appdata,"local_dbs")
+    if(!fs.existsSync(local_dbs)){
+        fs.mkdirSync(local_dbs);
     }
-    res.send({
-        'username':'admin',
-        'passport':'admin'
+
+    var image_db_path = path.join(local_dbs,"image_db_v1.0.json");
+    var recognition_db_path = path.join(local_dbs,"recognition_db_v1.0.json");
+
+    const image_db = low(new FileSync(image_db_path))
+    const recognition_db = low(new FileSync(recognition_db_path))
+
+    image_db.defaults({image_files:[]}).write()
+    recognition_db.defaults({images:[]}).write()
+
+    process.on('uncaughtException', function (err) {
+        console.log(err);
     });
-});
-http_server.get("/",function(req,res){
-    console.log("Hello Electron Server")
-    res.send("Hello Electron Server")
-})
-var server = http_server.listen(10082, function () {
 
-    var host = server.address().address
-    var port = server.address().port
+    var http = require('http');
+    var express = require('express');
+    var bodyParser = require('body-parser')
+    var router  = express();
+    // 添加 body-parser 中间件就可以了
+    router.use(bodyParser.urlencoded({extended: false}));
+    router.use(bodyParser.json());
+    router.post('/drive_images', function (req, res) {
 
-    console.log("the local server http://%s:%s", host, port)
+        if(req.body){
+            var obj = {
+                filename: req.body.filename,
+                filesize: req.body.filesize,
+                image_guid: req.body.image_guid,
+                timestamp: req.body.timestamp,
+            }
+            console.log(req.body);
+            image_db.get('image_files').push(obj).write();
+        }
+        res.send({'result':'1'});
+    });
+    router.post('/drive_list', function (req, res) {
 
-})
+        console.log(req.body);
+        if(req.body){
+            var drives = req.body.drives;
+            drives = JSON.parse(drives);
+            sendMessageToRender("message-drive-list",drives)
+            for(var i=0;i<drives.length;i++){
+                console.log(drives[i]);
+            }
+        }
+        res.send({'result':'1'});
+    });
+    router.get("/",function(req,res){
+        console.log(req.query)
+        res.send("Hello Electron Server")
+    })
+    var server = router.listen(10082, function () {
+
+        var host = server.address().address
+        var port = server.address().port
+
+        console.log("the local server http://%s:%s", host, port)
+
+    })
+}
+localServer();
 
 
 function setupLogger() {
