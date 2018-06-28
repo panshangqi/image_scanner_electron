@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>upload!</title>
+    <style>
+        #upload_html{
+            width:100%;
+            height:300px;
+            color:#007bff;
+            border: 1px solid #007bff;
+        }
+        #count{
+            font-size: 80px;
+        }
+    </style>
+    <script>
+        window.$ = window.jQuery = require('jquery/dist/jquery.min.js');
+    </script>
+</head>
+<body>
+
+<div id="upload_html">
+    <div id="count">0123</div>
+    <button id="test_btn">test</button>
+</div>
+</body>
+<script>
+    console.log(process);
+
+    var count = 0;
+/*
+    setInterval(function(){
+        count ++;
+        $('#count').html(count);
+    },100);
+    */
+
+    console.log("end")
+    $('#test_btn').click(function () {
+        console.log('this si d');
+    })
+</script>
+</html>

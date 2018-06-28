@@ -1,16 +1,15 @@
 
 const {shell, remote, ipcRenderer} = require('electron');
 const {dialog, BrowserWindow} = require('electron').remote;
+const logger = require('electron-log')
 var cmd=require('node-cmd');
 var path = require("path");
 var ini = require("ini");
 var fs = require("fs");
+var request = require("request");
 const { exec } = require('child_process');
-var yq_util = require('../yq_util')
-var fileDialog = require('file-dialog')
-var nwDialog = require('nw-dialog')
-lib_path = path.join(__dirname, './');
-//var hello = require('./hello')
+var yq_util = require('../js/yq_util')
+
 //----------------------
 var $yes_no_update_dialog = $('#yes_no_update_dialog');
 var drive_setting_dialog = $('#drive_setting_dialog');
@@ -24,7 +23,7 @@ $('#scan_btn').click(function () {
 $('#static_btn').click(function () {
     console.log(remote.getGlobal('sharedObject').lib_path);
     console.log(process);
-    console.log(remote.school);
+    console.log(remote.getGlobal('appdata'));
 })
 $('#http_get_btn').click(function () {
 
@@ -47,6 +46,40 @@ $('#http_post_btn').click(function () {
     yq.http.post(url,_data,function(res){
         console.log(res);
     })
+    logger.info('http://10.200.4.226:8888/123456')
+})
+$('#http_post_upload_btn').click(function () {
+    console.log('btn');
+
+    var formData = {
+        test:'fad15454k5451g21f5sd4g5',
+        file: [
+            {
+                value:  fs.createReadStream('D:\\17zuoyePic\\7cd77ebbe3b4eba51c979bb23907974a_1.jpg'),
+                options: {
+                    filename: '7cd77ebbe3b4eba51c979bb23907974a_1.jpg',
+                    contentType: 'image/jpeg'
+                }
+            },
+            {
+                value:  fs.createReadStream('D:\\17zuoyePic\\7cd77ebbe3b4eba51c979bb23907974a_2.jpg'),
+                options: {
+                    filename: '7cd77ebbe3b4eba51c979bb23907974a_2.jpg',
+                    contentType: 'image/jpeg'
+                }
+            }
+        ]
+    };
+    request.post({url:'http://10.200.4.226:8888/scan_stat/test', formData: formData}, function optionalCallback(err, httpResponse, body) {
+
+        if (err) {
+            return console.error('upload failed:', err);
+        }
+        console.log('Upload successful!  Server responded with:', body);
+    }).then(()=>{
+        console.log('upload file over');
+    });
+    console.log('upload file end');
 })
 $('#msg_1').click(function () {
     ipcRenderer.send('asynchronous-message', 'ping')
@@ -179,3 +212,9 @@ webview.addEventListener('new-window', (e) => {
     window.open(e.url)
 }
 });
+
+//const webview = document.querySelector('webview')
+
+webview.addEventListener('dom-ready', () => {
+    webview.openDevTools() //打开webview 控制台
+})

@@ -1,12 +1,8 @@
-
-var regedit = require('regedit'); //引入regedit
 var os = require("os");
 var path = require('path');
 var fs = require('fs')
 var ini = require('ini')
-var cmd = require('node-cmd');
 const logger = require('electron-log')
-const { exec } = require('child_process');
 
 var createInit = {
     init: function () {
@@ -24,7 +20,6 @@ var createInit = {
         if(!fs.existsSync(default_pic)){
             fs.mkdirSync(default_pic);
         }
-
         if (!fs.existsSync(scanCfg)) {
             logger.info("scanCfg is no exist, now to create");
             fs.writeFileSync(scanCfg,"");
