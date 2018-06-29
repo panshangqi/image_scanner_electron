@@ -2,6 +2,8 @@
 const {shell, remote, ipcRenderer} = require('electron');
 const {dialog, BrowserWindow} = require('electron').remote;
 const logger = require('electron-log')
+var co = require('co');
+var OSS = require('ali-oss')
 var cmd=require('node-cmd');
 var path = require("path");
 var ini = require("ini");
@@ -81,6 +83,7 @@ $('#http_post_upload_btn').click(function () {
     });
     console.log('upload file end');
 })
+
 $('#msg_1').click(function () {
     ipcRenderer.send('asynchronous-message', 'ping')
 })
@@ -144,6 +147,43 @@ $('#open_drive_setting_btn').click(function () {
     exec("TwainDriver.exe 2",{},function(err,data){
         console.info('TwainDrive 2');
     });
+})
+$('#get_ali_key_btn').click(function () {
+    var url = "http://10.200.3.16:3202/host/sts";
+
+    yq.http.get(url,"",function (res) {
+        //res = JSON.parse(res);
+        console.log(res.body.Credentials);
+        console.log(res.body);
+        var AccessKeyId = res.body.Credentials.AccessKeyId;
+        var AccessKeySecret = res.body.Credentials.AccessKeySecret;
+        var SecurityToken = res.body.Credentials.SecurityToken;
+        var bucket = res.body.bucket;
+        var endpoint = res.body.endpoint;
+        var file_dir = res.body.file_dir;
+        var client = new OSS.Wrapper({
+            region: 'oss-cn-beijing',
+            accessKeyId: AccessKeyId,
+            accessKeySecret: AccessKeySecret,
+            bucket: bucket
+        });
+        //异步
+        client.put(file_dir+'7cd77ebbe3b4eba51c979bb23907974a_2.jpg', 'D:\\17zuoyePic\\7cd77ebbe3b4eba51c979bb23907974a_2.jpg').then(function (rep) {
+            console.log(rep);
+        }).catch(function (err) {
+            console.log('error->:' + err);
+        })
+        /*同步
+        co(function* () {
+            var result = yield client.put(file_dir+'7cd77ebbe3b4eba51c979bb23907974a_2.jpg', 'D:\\17zuoyePic\\7cd77ebbe3b4eba51c979bb23907974a_2.jpg');
+            console.log(result);
+        }).catch(function (err) {
+            console.log('error->:' + err);
+        });
+        */
+    },true)
+
+    console.log('get');
 })
 ipcRenderer.on('message-drive-list', function (event, data) {
     console.log('message-drive-list',data)
@@ -209,9 +249,49 @@ webview.addEventListener('new-window', (e) => {
     const protocol = require('url').parse(e.url).protocol
     if (protocol === 'http:' || protocol === 'https:') {
     //shell.openExternal(e.url)
-    window.open(e.url)
-}
+        //console.log(e.url);
+        window.open(e.url);
+
+    }
 });
+const remote_web = document.getElementById('remote_web')
+/*
+remote_web.addEventListener('new-window', (e) => {
+    const protocol = require('url').parse(e.url).protocol
+    if (protocol === 'http:' || protocol === 'https:') {
+    //shell.openExternal(e.url)
+    console.log(e.url);
+    //window.open(e.url);
+    //window.location.href = e.url;
+    $('#remote_web').attr('src',e.url);
+}
+});*/
+$('#web_url').on('keypress',function(event){
+
+    if(event.keyCode == 13)
+    {
+        console.log($('#web_url').val());
+        var m_url = $('#web_url').val();
+        $('#remote_web').attr('src', m_url);
+
+    }
+
+});
+$('#remote_web').on('new-window',function (e) {
+    console.log(e);
+    e = e.originalEvent;
+
+    const protocol = require('url').parse(e.url).protocol
+    if (protocol === 'http:' || protocol === 'https:') {
+        //shell.openExternal(e.url)
+        console.log(e);
+        //window.open(e.url);
+        //window.location.href = e.url;
+        $('#web_url').val(e.url)
+        $('#remote_web').attr('src', e.url);
+    }
+
+})
 
 //const webview = document.querySelector('webview')
 

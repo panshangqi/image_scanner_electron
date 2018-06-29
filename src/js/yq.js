@@ -1,21 +1,22 @@
 
 yq = {
     http:{
-        get:function (url,data,fn) {
+        get:function (url,data,fn,sync) {
             var params = jQuery.param(data);
             var _url = url + '?' + params;
+            var _sync = (sync == 'undefined')?true: sync;
             $.ajax({
                 url: _url,
                 type: 'get',
-                async: true,
+                async: _sync,
                 success: function (res) {
-                    console.log('success: ',res);
+                    fn(res);
                 },
                 complete: function (res) {
 
                 },
                 error: function () {
-                    alert('网络错误');
+                    console.log('网络错误')
                 }
             })
         },

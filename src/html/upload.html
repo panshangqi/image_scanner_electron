@@ -11,30 +11,67 @@
             border: 1px solid #007bff;
         }
         #count{
-            font-size: 80px;
+            font-size: 40px;
         }
     </style>
     <script>
         window.$ = window.jQuery = require('jquery/dist/jquery.min.js');
     </script>
+    <script type="text/javascript" src="../js/yq.js"></script>
 </head>
 <body>
 
 <div id="upload_html">
-    <div id="count">0123</div>
+    <div id="count">子进程窗口</div>
+    <div id="console" style="font-size: 30px;"></div>
     <button id="test_btn">test</button>
 </div>
 </body>
+
 <script>
     console.log(process);
-
-    var count = 0;
-/*
+    /*
+    var next = true;
     setInterval(function(){
-        count ++;
-        $('#count').html(count);
-    },100);
+
+       yq.http.get("http://www.baidu.com","",function (eq) {
+           console.log("baidu done");
+       })
+
+    },2000);
     */
+    function upload_end(i) {
+        return new Promise((resolve,reject)=>{
+            setTimeout(() => {
+                resolve({
+                    'school':454102,
+                    'name': 'zhangjie',
+                    'order': i
+                });
+            },500)
+        })
+    }
+    function upload_start(i) {
+        return new Promise((resolve,reject)=>{
+            setTimeout(() => {
+                resolve({
+                    'filesize':1455245,
+                    'order':i
+                });
+            },1000)
+        })
+    }
+    async function upload_task(){
+        for(var i=0;i<2000;i++){
+            let start = await upload_start(i)
+            console.log(start);
+            let end = await upload_end(i)
+            console.log(end)
+            //$('#console').html(res.order);
+        }
+    }
+    upload_task();
+
 
     console.log("end")
     $('#test_btn').click(function () {

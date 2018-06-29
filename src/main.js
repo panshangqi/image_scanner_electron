@@ -32,7 +32,7 @@ function createWindow () {
     // 创建浏览器窗口。
     setupLogger();
     create_init.init();
-    win = new BrowserWindow({width: 1500, height: 800, frame: true})
+    win = new BrowserWindow({width: 1500, height: 800, frame: true,transparent:false})
     win.loadFile(html_path + 'index.html')
     //win.loadURL('https://electronjs.org/');
     logger.info('success load html: ' + html_path + 'index.html')
