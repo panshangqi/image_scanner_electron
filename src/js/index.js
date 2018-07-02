@@ -11,6 +11,7 @@ var fs = require("fs");
 var request = require("request");
 const { exec } = require('child_process');
 var yq_util = require('../js/yq_util')
+var diskspace = require('diskspace')
 
 //----------------------
 var $yes_no_update_dialog = $('#yes_no_update_dialog');
@@ -152,7 +153,7 @@ $('#get_ali_key_btn').click(function () {
     var url = "http://10.200.3.16:3202/host/sts";
 
     yq.http.get(url,"",function (res) {
-        //res = JSON.parse(res);
+        res = JSON.parse(res);
         console.log(res.body.Credentials);
         console.log(res.body);
         var AccessKeyId = res.body.Credentials.AccessKeyId;
@@ -184,6 +185,15 @@ $('#get_ali_key_btn').click(function () {
     },true)
 
     console.log('get');
+})
+$('#get_disk_size_btn').click(function () {
+    diskspace.check('I',function (err,result) {
+        if(!err){
+            console.log(result);
+        }else{
+            console.log(err);
+        }
+    })
 })
 ipcRenderer.on('message-drive-list', function (event, data) {
     console.log('message-drive-list',data)
@@ -296,5 +306,5 @@ $('#remote_web').on('new-window',function (e) {
 //const webview = document.querySelector('webview')
 
 webview.addEventListener('dom-ready', () => {
-    webview.openDevTools() //打开webview 控制台
+    //webview.openDevTools() //打开webview 控制台
 })

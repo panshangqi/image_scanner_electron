@@ -153,6 +153,8 @@ app.on('window-all-closed', () => {
 // 也可以拆分成几个文件，然后用 require 导入。
 //本地服务
 function localServer(){
+
+    //lowdb
     const low = require('lowdb')
     const FileSync = require('lowdb/adapters/FileSync')
 
@@ -217,6 +219,7 @@ function localServer(){
 
         console.log("the local server http://%s:%s", host, port)
     })
+
 }
 localServer();
 
