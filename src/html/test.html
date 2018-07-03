@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/ui_frame.css" type="text/css" />
+    <script>
+        window.$ = window.jQuery = require('jquery/dist/jquery.min.js');
+    </script>
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../js/yq.js"></script>
+</head>
+<body>
+
+<div id="index_html">
+    <div class="page_header">
+
+    </div>
+    <div class="page_content">
+        <button type="button" class="btn btn-primary" id="scan_btn">扫描</button>
+        <button type="button" class="btn btn-primary" id="static_btn">静态资源路径测试</button>
+        <button type="button" class="btn btn-primary" id="http_get_btn">get请求测试</button>
+        <button type="button" class="btn btn-primary" id="http_post_btn">post请求测试</button>
+        <button type="button" class="btn btn-primary" id="http_post_upload_btn">post图片上传测试</button>
+        <button type="button" class="btn btn-primary" id="msg_1">渲染进程->主进程</button>
+        <button type="button" class="btn btn-primary" id="check_update_btn">检查更新</button>
+        <button type="button" class="btn btn-primary" id="open_window_dialog_btn">创建新窗体</button>
+        <button type="button" class="btn btn-primary" id="drive_setting_btn">驱动设置</button>
+        <button type="button" class="btn btn-primary" id="get_ali_key_btn">获取阿里云密钥</button>
+        <button type="button" class="btn btn-primary" id="get_disk_size_btn">获取磁盘空间大小</button>
+        <div>
+            <label>设置（确保不低于10G硬盘内存）</label><br/>
+
+            <input id="show_default_pic" type="text" class="form-control" placeholder="请选择图片缓存路径(剩余硬盘内存大于10G)" style="width:600px;display: inline;vertical-align: bottom"/>
+            <button type="button" class="btn btn-primary" id="select_default_pic_btn">选 择</button>
+        </div>
+        <a href="https://www.w3cschool.cn/electronmanual/">baidu</a>
+        <div style="border: 1px solid #555;height:500px;width:100%;">
+            <input type="text" class="form-control" id="web_url"/>
+            <webview id="remote_web" style="width:100%;height:400px;margin-top: 30px;" src="https://www.baidu.com" allowpopups  nodeintegration>
+
+            </webview>
+        </div>
+
+        <webview id="foo" style="width:100%;height:400px;margin-top: 30px; " src="upload.html" allowpopups nodeintegration plugins>
+
+        </webview>
+
+    </div>
+
+    <div class="page_footer">
+        We are using node <script>document.write(process.versions.node)</script>,
+        Chrome <script>document.write(process.versions.chrome)</script>,
+        and Electron <script>document.write(process.versions.electron)</script>.
+    </div>
+
+
+    <div class="modal fade vertical" id="yes_no_update_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h7 class="modal-title" id="myModalLabel">更新提示</h7>
+                </div>
+                <div class="modal-body">
+                    <div id="update_tip" class="update_tip">
+                        <p>6.0.1 版本说明</p>
+                        <p>1 增加扫描功能，修复识别</p>
+                        <p>2 调整ui 以规避升级过程中看不到错误提示</p>
+                    </div>
+                    <div id="update_progress" style="display: none">
+                        <div class="progress">
+                            <div class="progress-bar  progress-bar-striped active" role="progressbar" aria-valuenow="60"
+                                 aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            </div>
+                        </div>
+                        <div class="update_progress_tip">
+                            <span>下载速度：<span class="upt_val" id="dl_tip_speed">0</span> KB/s</span>
+                            <span style="margin-left: 10px">进度：<span class="upt_val" id="dl_tip_progress">0%</span></span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="cencel_update_btn" data-dismiss="modal">暂不升级</button>
+                    <button type="button" class="btn btn-primary" id="to_update_btn">立即升级</button>
+                    <button type="button" class="btn btn-primary" id="to_install_btn" style="display: none">开始安装</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade vertical" id="drive_setting_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog"  style="width:600px;max-width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h7 class="modal-title">驱动选择</h7>
+                </div>
+                <div class="modal-body">
+                    <div class="drive_list_content">
+                        <div class="drive_list_box">
+                            <ul id="drive_list_box">
+
+                            </ul>
+                        </div>
+                        <div class="drive_op_btns">
+                            <button type="button" class="btn btn-primary" id="set_default_drive_btn">设为默认驱动</button>
+                            <button type="button" class="btn btn-primary" id="open_drive_setting_btn">驱动设置</button>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script type="text/javascript" src="../js/index.js"></script>
+
+<script>
+
+
+</script>
+</html>

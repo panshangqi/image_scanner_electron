@@ -14,12 +14,11 @@ const html_path = path.join(__dirname, './html/');
 const img_path = path.join(__dirname, './img/');
 
 const autoUpdater = require('electron-updater').autoUpdater
-// 在主进程里
-global.appdata = "C:\\appdata";
-global.sharedObject = {
-    lib_path: path.join(__dirname, './lib/'),
-    root_dir: __dirname
-};
+//全局变量
+global.appdata = require('electron').app.getPath("userData");
+global.local_host = "127.0.0.1";
+global.local_port = 10082;
+
 const uploadUrl='http://www.pansq.info:8081/download/'
 //const uploadUrl='http://127.0.0.1:8081/download/'
 //const uploadUrl='http://10.200.3.16:8081/download/'
@@ -32,9 +31,10 @@ function createWindow () {
     // 创建浏览器窗口。
     setupLogger();
     create_init.init();
-    win = new BrowserWindow({width: 1500, height: 800, frame: true,transparent:false})
-    win.loadFile(html_path + 'index.html')
-    //win.loadURL('https://electronjs.org/');
+    win = new BrowserWindow({width: 1600, height: 720, frame: true,transparent:false})
+    //win.loadFile(html_path + 'index.html')
+    //win.loadFile('D:\\Electron_Project\\electron-react\\build\\index.html')
+    win.loadURL('http://localhost:3000');
     logger.info('success load html: ' + html_path + 'index.html')
     // 打开开发者工具
     win.webContents.openDevTools()
@@ -212,7 +212,7 @@ function localServer(){
         console.log(req.query)
         res.send("Hello Electron Server")
     })
-    var server = router.listen(10082, function () {
+    var server = router.listen(local_port, function () {
 
         var host = server.address().address
         var port = server.address().port

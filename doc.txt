@@ -1,3 +1,10 @@
+//react 配置
+npm install -g create-react-app
+create-react-app [your project name]
+cd [project name]
+
+npm run eject  导出配置
+
 
 
 cnpm start
