@@ -1,9 +1,10 @@
 image_scanner-win32-ia32/
 node_modules/
-src/node_modules/
+client/node_modules/
 *.exe
 *.dll
 build/
-web/
+web/node_modules/
+web_dst/
 ./package-lock.json
 src/package-lock.json

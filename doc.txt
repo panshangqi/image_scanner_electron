@@ -1,3 +1,9 @@
+//文档结构说明
+build  window 打包目录
+client 客户端源代码
+web 前端代码
+web_dst 前端打包代码
+
 //react 配置
 npm install -g create-react-app
 create-react-app [your project name]
